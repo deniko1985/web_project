@@ -1,9 +1,6 @@
-import os
-import mimetypes
-from datetime import datetime
-from fastapi import APIRouter, HTTPException, Depends, Response, Request, Form, Query
+
+from fastapi import APIRouter, HTTPException, Depends, Request, Form
 from fastapi.responses import RedirectResponse
-from typing import List
 from starlette.templating import Jinja2Templates
 import starlette.status as status
 

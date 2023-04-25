@@ -37,11 +37,11 @@
               <div class="col-sm-6 col-lg-4 mb-4">
                 <div class="card">
                   <div class="card-body">
-                    <h6 class="card-title" onclick="modalNote({{ note }})">{{ note["name_notes"] |e }}</h6>
-                    <p class="card-text" onclick="modalNote({{ note }})">{{ note["text_notes"] |e }}</p>
+                    <h6 class="card-title" onclick="modalNote('{{ note }}')">{{ note["name_notes"] |e }}</h6>
+                    <p class="card-text" onclick="modalNote('{{ note }}')">{{ note["text_notes"] |e }}</p>
                     <p class="card-text-min"><small class="text-muted">{{ note["date"] |e }}</small></p>
                         <form class="card-text-min"><small class="text-muted"></small>
-                          <input type="hidden" name="id" value={{ note["id"] }}>
+                          <input type="hidden" name="id" value='{{ note["id"] }}'>
                           {% if note["favourites"] == "on" %}
                             <input type="hidden" class="check" name="add_favour" value="off">
                             <input type="submit" formaction="/add_favour" formmethod="post" formenctype="multipart/form-data" class="button" value="в избранном" title="Удалить из избранного">
