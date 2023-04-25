@@ -1,5 +1,6 @@
 postgres/data/
 .git/
+app/.vscode/
 app/env/
 app/__pycache__/
 app/migrations/__pycache__/
