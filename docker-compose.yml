@@ -5,7 +5,6 @@ services:
     container_name: web_project
     hostname: app
     user: '1000:1000'
-    # restart: unless-stopped
     restart: always
     build: 
       context: ./app/
@@ -25,25 +24,10 @@ services:
       placement:
           constraints: [node.hostname == web_app]
 
-  # web_project_front:  
-  #  container_name: frontend
-  #  restart: unless-stopped
-  #  build: 
-  #    context: ./frontend/
-  #    network: host
-  #  networks:
-  #    - web_project-network
-  #  volumes:
-  #    - /frontend/:/fe_app/
-  #  ports:
-  #    - 5001:5001
-
   postgres:
     image: postgres:15.2
     container_name: postgres
-    # user: '70:70'
     hostname: postgres
-    # restart: unless-stopped
     restart: always
     networks:
       - web_project-network
@@ -62,7 +46,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      # start_period: 10s
     deploy:
       replicas: 1
       restart_policy:
