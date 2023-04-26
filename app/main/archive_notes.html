@@ -16,7 +16,6 @@
         <title>Home organizer</title>
     </head>
     <body>
-      <div id="svg"></div>
     <main>
       <div class="modalBackground">
         <div class="modalActiveNote">          
@@ -30,15 +29,15 @@
               <button id="edit" class="btn btn-lg btn-dark" name="edit">Изменить</button>
               <button id="download" class="btn btn-lg btn-dark" name="download">Скачать</button>
         </div>
-    </div>       
-    <div id="header"></div> 
+      </div>
+      {% include 'header.html' %}
           <div class="row" data-masonry='{"percentPosition": true }'>
             {% for note in data_notes["items"] %}
               <div class="col-sm-6 col-lg-4 mb-4">
                 <div class="card">
                   <div class="card-body">
-                    <h6 class="card-title" onclick="modalNote('{{ note }}')">{{ note["name_notes"] |e }}</h6>
-                    <p class="card-text" onclick="modalNote('{{ note }}')">{{ note["text_notes"] |e }}</p>
+                    <h6 class="card-title" onclick="modalNote({{ note }})">{{ note["name_notes"] |e }}</h6>
+                    <p class="card-text" onclick="modalNote({{ note }})">{{ note["text_notes"] |e }}</p>
                     <p class="card-text-min"><small class="text-muted">{{ note["date"] |e }}</small></p>
                         <form class="card-text-min"><small class="text-muted"></small>
                           <input type="hidden" name="id" value='{{ note["id"] }}'>
@@ -64,8 +63,5 @@
           </div>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-    <script>
-      $("#header").load("/main/header.html");
-    </script>
     </body>
 </html>

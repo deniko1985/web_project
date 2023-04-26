@@ -18,21 +18,6 @@
     </head>
     <body>
     <main>
-      <div class="modalBackground">
-        <div class="modalActiveNote">          
-            <div class="modalClose">
-                <img src="/main/static/images/modalcross.svg" />                
-            </div>
-            <div class="results"></div>            
-            <div class="modalWindow"></div>
-            <div class="modalButton">
-              <button id="delete" class="btn btn-lg btn-primary" name="delete">Удалить</button>
-              <button id="edit" class="btn btn-lg btn-primary" name="edit">Изменить</button>
-              <button id="download" class="btn btn-lg btn-primary" name="download">Скачать</button>
-            </div>
-        </div>
-    </div>      
-    <!--<div id="navbar-syte"></div>-->
     <header class="p-3 bg-dark text-white">
       <div class="container-fluid">
       <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
@@ -62,8 +47,8 @@
         <div class="col-sm-6 col-lg-4 mb-4">
           <div class="card">
             <div class="card-body">
-              <h6 class="card-title" onclick="modalNote('{{ note }}')">{{ note["name_notes"] |e }}</h6>
-              <p class="card-text" onclick="modalNote('{{ note }}')">{{ note["text_notes"] |e }}</p>
+              <h6 class="card-title" onclick="modalNote({{ note }})">{{ note["name_notes"] |e }}</h6>
+              <p class="card-text" onclick="modalNote({{ note }})">{{ note["text_notes"] |e }}</p>
               <p class="card-text-min"><small class="text-muted">{{ note["date"] |e }}</small></p>
                   <form class="card-text-min"><small class="text-muted"></small>
                     <input type="hidden" name="id" value='{{ note["id"] }}'>

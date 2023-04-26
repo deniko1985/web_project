@@ -6,8 +6,8 @@
       <link rel="shortcut icon" href="/main/static/images/favicon.ico" type="image/x-icon">
       <link rel="stylesheet" href="/main/static/css/modal_style.css">        
       <link rel="stylesheet" href="/main/static/css/headers.css" type="text/css">
-      <link href="/main/static/css/bootstrap.min.css" rel="stylesheet">
-      <link href="/main/static/css/user_style.css" rel="stylesheet">
+      <link rel="stylesheet" href="/main/static/css/bootstrap.min.css">
+      <link rel="stylesheet" href="/main/static/css/user_style.css">
       <meta name="description" content=""> 
       <script src="https://code.jquery.com/jquery-1.11.3.js"></script>
       <script src="https://code.jquery.com/jquery-3.6.4.min.js"   integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous">
@@ -17,21 +17,7 @@
     </head>
     <body>
     <main>
-      <div class="modalBackground">
-        <div class="modalActiveNote">          
-            <div class="modalClose">
-                <img src="/main/static/images/modalcross.svg" />                
-            </div>
-            <div class="results"></div>            
-            <div class="modalWindow"></div>
-            <div class="modalButton">
-              <button id="delete" class="btn btn-lg btn-dark" name="delete">Удалить</button>
-              <button id="edit" class="btn btn-lg btn-dark" name="edit">Изменить</button>
-              <button id="download" class="btn btn-lg btn-dark" name="download">Скачать</button>
-            </div>
-        </div>
-    </div>
-   <div id="header"></div>      
+    {% include 'header.html' %}      
         <div class="row row-cols-1 row-cols-md-2" data-masonry='{"percentPosition": true }'>
         <div class="col">
           <div class="card">
@@ -62,9 +48,6 @@
         </div>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
-    </script>
-    <script>
-      $("#header").load("/main/header.html");
     </script>
 </body>
 </html>
