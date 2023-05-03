@@ -32,8 +32,8 @@ async def get_notes_page(
         raise HTTPException(status_code=401, detail="Not authenticated")
 
 
-@router.get('/archive_notes/{page_number}', response_model=List[UserNotesBase])
-async def get_archive_note_page(
+@router.get('/my_notes/{page_number}', response_model=List[UserNotesBase])
+async def get_my_notes_page(
                                 request: Request,
                                 page_number: int = Query(ge=1, default=1),
                                 current_user: User = Depends(get_user_by_cookie),
@@ -42,7 +42,7 @@ async def get_archive_note_page(
         data_notes = await notes.get_all_notes(current_user.id, tz, page_number)
         if data_notes:
             return templates.TemplateResponse(
-                                            "/archive_notes.html",
+                                            "/my_notes.html",
                                             {"request": request, "data_notes": data_notes})
         else:
             return templates.TemplateResponse(
@@ -80,7 +80,7 @@ async def delete_note_user(request: Request, note_id: int, current_user: User = 
             "/modal_error.html",
             {"request": request, "data": "Удаление не удалось"})
     else:
-        return RedirectResponse('/archive_notes')
+        return RedirectResponse('/my_notes')
 
 
 @router.get('/update_note/{id}')
@@ -110,7 +110,7 @@ async def get_update_note(
     data = await notes.update_note_by_id(user_id, int(id), name_notes[:76], text_notes)
     if data:
         return RedirectResponse(
-                    '/archive_notes/1',
+                    '/my_notes/1',
                     status_code=status.HTTP_302_FOUND)
     else:
         return templates.TemplateResponse(
@@ -192,6 +192,6 @@ async def add_favour(
     user_id = current_user.id
     result = await notes.add_note_favour(user_id, int(id), add_favour)
     if result:
-        return RedirectResponse('/archive_notes/1', status_code=status.HTTP_302_FOUND)
+        return RedirectResponse('/my_notes/1', status_code=status.HTTP_302_FOUND)
     else:
         raise HTTPException(status_code=400, detail="Добавление в избранное не удалось")
