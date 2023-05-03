@@ -20,12 +20,12 @@ class Note():
 
 
 async def get_all_notes(
-                        user_id,
-                        tz,
-                        page_number,
-                        search_text=None,
-                        search_by_name="off",
-                        search_by_text="off"):
+        user_id,
+        tz,
+        page_number,
+        search_text=None,
+        search_by_name="off",
+        search_by_text="off"):
     PAGE_SIZE = 9
     offset = (page_number - 1) * PAGE_SIZE
     cond = []

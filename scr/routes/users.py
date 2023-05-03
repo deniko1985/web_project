@@ -13,7 +13,7 @@ from utils.depend import get_user_by_cookie
 
 
 router = APIRouter()
-templates = Jinja2Templates(directory="/app/main")
+templates = Jinja2Templates(directory="/scr/ui")
 
 
 @router.post("/auth", response_model=TokenBase)
@@ -46,7 +46,6 @@ async def auth(request: Request, form_data: OAuth2PasswordRequestForm = Depends(
 
 @router.get('/users')
 async def get_users_page(request: Request, current_user: User = Depends(get_user_by_cookie)):
-    print(current_user)
     if current_user:
         return templates.TemplateResponse(
             "/users.html",
@@ -57,10 +56,10 @@ async def get_users_page(request: Request, current_user: User = Depends(get_user
 
 @router.post('/add_user', response_model=UserGeneral)
 async def add_user(
-                request: Request,
-                username=Form(),
-                password=Form(),
-                client_secret=Form()):
+        request: Request,
+        username=Form(),
+        password=Form(),
+        client_secret=Form()):
     n_user = await users.get_user_by_name(username)
     if n_user:
         return templates.TemplateResponse(
@@ -77,7 +76,6 @@ async def add_user(
 async def logout_user(request: Request, current_user: User = Depends(get_user_by_cookie)):
     response = templates.TemplateResponse("/index.html", {"request": request})
     response.delete_cookie("access_token")
-    print(response)
     return response
 
 

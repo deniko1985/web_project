@@ -4,13 +4,11 @@ from datetime import datetime
 
 
 class UserCreate(BaseModel):
-    """ Проверяет sign-up запрос """
     username: str
     password: str
 
 
 class UserBase(BaseModel):
-    """ Формирует тело ответа с деталями пользователя """
     id: int
     user_id: int
     username: str
@@ -20,8 +18,6 @@ class UserBase(BaseModel):
 
 
 class User(BaseModel):
-    """ Формирует тело ответа с деталями пользователя и токеном """
-    # token: TokenBase = {}
     id: int
     username: str
     hashed_password: str
@@ -66,5 +62,4 @@ class TokenBase(BaseModel):
 
 
 class UserToken(UserGet):
-    """ Формирует тело ответа с деталями пользователя и токеном """
     access_token: TokenBase = {}

@@ -22,14 +22,9 @@ users_table = sqlalchemy.Table(
         nullable=False,
     ),
     sqlalchemy.Column('auth_token', sqlalchemy.String(), default=""),
-    #    sqlalchemy.Sequence('users_auth_token_seq'),
-    #    primary_key=True,
-    #    unique=True,
-    #    index=True),
     sqlalchemy.Column(
         "role",
         sqlalchemy.String()),
-    # sqlalchemy.Column('tz', sqlalchemy.String(), default=""),
 )
 
 tokens = sqlalchemy.Table(

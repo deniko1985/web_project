@@ -1,40 +1,18 @@
 from utils import users as users_utils
 from fastapi import Depends, HTTPException, status, Cookie
-from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
-from config import SECRET_KEY, ALGORITHM, pwd_context
+from config import SECRET_KEY, ALGORITHM
 from schemas.users import TokenData
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth")
-# pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-# async def get_current_user(token: str = Depends(oauth2_scheme)):
-#    print('token: ', token)
-#    user = await users_utils.get_user_by_token(token)
-#    print('user: ', user)
-#    if not user:
-#        raise HTTPException(
-#            status_code=status.HTTP_401_UNAUTHORIZED,
-#            detail="Invalid authentication credentials",
-#            headers={"WWW-Authenticate": "Bearer"},
-#        )
-#    if not user["is_active"]:
-#        raise HTTPException(
-#            status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
-#        )
-#    return user
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        # headers={"WWW-Authenticate": "Bearer"},
-    )
+        detail="Could not validate credentials")
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
@@ -64,6 +42,5 @@ async def get_timezone_by_cookie(access_token: str | None = Cookie(default=None)
         return tz
     else:
         raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Could not validate credentials",
-            )
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials")

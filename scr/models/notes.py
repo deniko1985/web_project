@@ -21,21 +21,3 @@ notes_table = sqlalchemy.Table(
     sqlalchemy.Column("favourites", sqlalchemy.String(), default="off"),
     sqlalchemy.Column("date", sqlalchemy.DateTime())
 )
-
-
-# notes_table = sqlalchemy.Table(
-#     "notes_vector",
-#     metadata,
-#     sqlalchemy.Column(
-#         "id",
-#         sqlalchemy.Integer,
-#         primary_key=True,
-#         autoincrement=True
-#         ),
-#     sqlalchemy.Column(
-#         "user_id",
-#         sqlalchemy.Integer,
-#         ),
-#     sqlalchemy.Column("name_notes", sqlalchemy.String(100), index=True),
-#     sqlalchemy.Column("text_notes", sqlalchemy.String(), index=True)
-# )

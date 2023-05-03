@@ -19,6 +19,5 @@ budget_table = sqlalchemy.Table(
     sqlalchemy.Column("income", sqlalchemy.Float),
     sqlalchemy.Column("expense", sqlalchemy.Float),
     sqlalchemy.Column("comment", sqlalchemy.String()),
-    # sqlalchemy.Column("statistics", sqlalchemy.JSON),
     sqlalchemy.Column("date", sqlalchemy.DateTime())
 )

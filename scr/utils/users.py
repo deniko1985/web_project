@@ -18,26 +18,26 @@ def get_password_hash(password):
 
 async def get_user(username):
     query = (
-                users.select()
-                .where(users.c.username == username)
+            users.select()
+            .where(users.c.username == username)
             )
     return await database.fetch_one(query)
 
 
 async def get_user_by_id(user_id: int):
     query = (
-                users.select()
-                .where(users.c.id == user_id)
-                .where(users.c.is_active == True)
+            users.select()
+            .where(users.c.id == user_id)
+            .where(users.c.is_active == True)
             )
     return await database.fetch_one(query)
 
 
 async def get_user_by_name(username: str):
     query = (
-                users.select()
-                .where(users.c.username == username)
-                .where(users.c.is_active == True)
+            users.select()
+            .where(users.c.username == username)
+            .where(users.c.is_active == True)
             )
     return await database.fetch_one(query)
 
@@ -51,7 +51,6 @@ async def check_user_token(user_id: int):
 
 
 async def get_user_by_token(token: str):
-    """ Возвращает информацию о владельце указанного токена """
     try:
         query = tokens.join(users).select().where(
             and_(
@@ -95,7 +94,6 @@ async def create_user_token(user_id: int, username, tz):
                     access_token=access_token,
                     expires=datetime.utcnow() + timedelta(weeks=2),
                     user_id=user_id,
-                    # refresh_token=str(uuid.uuid4())
                 )
                 .returning(tokens.c.access_token, tokens.c.expires)
             )
@@ -106,7 +104,6 @@ async def create_user_token(user_id: int, username, tz):
                     access_token=access_token,
                     expires=datetime.utcnow() + timedelta(weeks=2),
                     user_id=user_id,
-                    # refresh_token=str(uuid.uuid4())
                 )
                 .returning(tokens.c.access_token, tokens.c.expires)
             )
@@ -117,7 +114,6 @@ async def create_user_token(user_id: int, username, tz):
                 access_token=access_token,
                 expires=datetime.utcnow() + timedelta(weeks=2),
                 user_id=user_id,
-                # refresh_token=str(uuid.uuid4())
             )
             .returning(tokens.c.access_token, tokens.c.expires)
         )

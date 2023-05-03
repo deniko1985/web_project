@@ -41,8 +41,3 @@ class GetNotes(BaseModel):
     text_notes: str
     favourites: Optional[str]
     date: datetime
-
-    # @validator('date')
-    # def get_tz(cls, tz):
-    #     date = date.astimezone(pytz.timezone(tz))
-    #     note["date"] = date.strftime("%d-%m-%Y %H:%M")
