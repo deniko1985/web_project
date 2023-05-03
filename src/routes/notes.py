@@ -15,7 +15,7 @@ from utils.depend import get_user_by_cookie, get_timezone_by_cookie
 
 
 router = APIRouter()
-templates = Jinja2Templates(directory="/scr/ui")
+templates = Jinja2Templates(directory="/src/ui")
 
 
 @router.get('/notes')

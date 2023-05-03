@@ -13,7 +13,7 @@ from utils.depend import get_user_by_cookie
 
 
 router = APIRouter()
-templates = Jinja2Templates(directory="/scr/ui")
+templates = Jinja2Templates(directory="/src/ui")
 
 
 @router.post("/auth", response_model=TokenBase)
