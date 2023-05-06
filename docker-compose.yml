@@ -7,12 +7,12 @@ services:
     user: '1000:1000'
     restart: always
     build: 
-      context: ./scr/
+      context: ./src/
       network: host
     networks:
       - web_project-network
     volumes:
-      - ./scr/:/scr/
+      - ./src/:/src/
     ports:
       - 5001:5001
     depends_on:
