@@ -1,7 +1,6 @@
 from utils import users as users_utils
 from fastapi import Depends, HTTPException, status, Cookie
 from fastapi.security import OAuth2PasswordBearer
-from fastapi.responses import RedirectResponse
 from jose import JWTError, jwt
 
 from config import SECRET_KEY, ALGORITHM
