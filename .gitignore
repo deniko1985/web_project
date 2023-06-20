@@ -1,7 +1,7 @@
 postgres/data/
 .git/
 src/.vscode/
-/env/
+.env
 src/__pycache__/
 src/migrations/__pycache__/
 src/models/__pycache__/
