@@ -1,0 +1,66 @@
+body {
+    width: 100%;
+    height: 100%;
+}
+
+
+@media screen and (max-width: 600px) {
+    .table {
+      overflow-y: scroll;
+    }
+}
+
+
+.row {
+    width: 90%;
+    margin-left: 5%;
+    text-align: justify;
+    margin-top: 25px;
+}
+
+
+.card {
+    max-height: 400px;
+    cursor: pointer;
+}
+
+
+.card-text {
+    max-height: 235px;
+    overflow: hidden;
+    white-space: pre-line;
+}
+
+.card-text-min {
+    height: 15px;
+    margin-top: 15px;
+}
+
+.card-title {
+    height: 50px;
+}
+
+.button {
+    width: 150px;
+    height: 25px;
+    margin-left: 10px;
+    float: right;
+}
+
+.check {
+    float: left;
+}
+
+input[type~="submit"].button {
+    font-size: 0.65em;
+}
+
+.pagination {
+    padding-right: 0;
+    float: right;
+    padding-top: 15px;
+}
+
+.page {
+    border-top: 1px grey solid;
+}

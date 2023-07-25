@@ -8,5 +8,3 @@ backend/config.py
 backend/migrations/versions/*.py
 !backend/migrations/versions/__init__.py
 **/static_log/
-frontend/
-docker-compose.yml

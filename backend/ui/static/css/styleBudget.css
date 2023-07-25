@@ -1,0 +1,146 @@
+body {
+    width: 100%;
+    height: 100%;
+}
+
+.budget {
+    width: 90%;
+    height: 90%;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+.statics_income {
+    width: 45%;
+    height: 50px;
+    border: 2px;
+    border-style: solid;
+    border-color: grey;
+    border-radius: 5px;
+    margin-top: 15px;
+    float: left;
+    text-align: center;
+    font-size: 2rem;
+}
+
+.statics_expense {
+    width: 45%;
+    height: 50px;
+    border: 2px;
+    border-style: solid;
+    border-color: grey;
+    border-radius: 5px;
+    margin-top: 15px;
+    float: right;
+    text-align: center;
+    font-size: 2rem;
+}
+
+.date_from {
+    width: 25%;
+    height: 50px;
+    border: 2px;
+    border-style: solid;
+    border-color: grey;
+    border-radius: 5px;
+    margin-top: 50px;
+    float: left;
+    text-align: center;
+    font-size: 2rem;
+}
+
+.date_to {
+    width: 25%;
+    height: 50px;
+    border: 2px;
+    border-style: solid;
+    border-color: grey;
+    border-radius: 5px;
+    margin-top: 50px;
+    text-align: center;
+    font-size: 2rem;
+    margin-left: 25px;
+}
+
+#income {
+    width: 45%;
+    height: 50px;
+    border: 2px;
+    border-style: solid;
+    border-color: grey;
+    border-radius: 5px;
+    left: 0;
+    float: left;
+    margin-top: 25px;
+    text-align: center;
+    /*position: fixed;*/
+}
+
+#expense {
+    width: 45%;
+    height: 50px;
+    border: 2px;
+    border-style: solid;
+    border-color: grey;
+    border-radius: 5px;
+    left: 0;
+    float: right;
+    margin-top: 25px;
+    text-align: center;
+}
+
+#text {
+    width: 100%;
+    height: 125px;
+    border: 2px;
+    border-style: solid;
+    border-color: grey;
+    border-radius: 5px;
+    text-align: justify;
+    margin-top: 25px;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    float: right;
+}
+
+.button_save {
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.check {
+    width: 25%;
+    height: 50px;
+    cursor: pointer;
+    float: right;
+    margin-top: 50px;
+}
+
+@media screen and (max-width: 600px) {
+    #income, #expense {
+        width: 100%;
+        margin-top: 25px;
+        margin-left: 0;
+        float: none;
+    }
+    .date_from, .date_to {
+        width: 100%;
+        float: left;
+        margin-left: 0;
+    }
+    .date_to {
+        margin-top: 25px;
+    }
+
+    .statics {
+        width: 100%;
+        margin-top: 25px;
+    }
+    .button_save {
+        margin-top: 25px;
+    }
+    .check {
+        width: 100%;
+        margin-top: 25px;
+    }
+}
