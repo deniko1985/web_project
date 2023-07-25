@@ -5,7 +5,7 @@ from starlette.templating import Jinja2Templates
 import starlette.status as status
 
 from schemas.users import User
-from utils import budget
+from backend.db import budget
 from utils.depend import get_user_by_cookie, get_timezone_by_cookie
 
 router = APIRouter()

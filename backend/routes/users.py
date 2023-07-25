@@ -7,7 +7,7 @@ from starlette.templating import Jinja2Templates
 import starlette.status as status
 
 from schemas.users import TokenBase, User, UserGeneral
-from utils import users
+from backend.db import users
 from utils.depend import get_user_by_cookie
 
 from dotenv import load_dotenv

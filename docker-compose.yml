@@ -36,7 +36,7 @@ services:
 
   postgres:
     image: postgres:15.2
-    container_name: postgres
+    container_name: web_project_postgres
     hostname: postgres
     restart: unless-stopped
     networks:
@@ -52,6 +52,39 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  worker:
+    build: ./backend
+    container_name: web_project_worker
+    command: celery -A worker.celery worker --loglevel=info --logfile=logs/celery.log
+    volumes:
+      - ./backend:/usr/src/app
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6381/0
+      - CELERY_RESULT_BACKEND=redis://redis:6381/0
+    depends_on:
+      - web_project_backend
+      - redis
+
+  redis:
+    image: redis:latest
+    container_name: web_project_redis
+    ports:
+      - 6381:6381
+
+  dashboard:
+    build: ./backend
+    container_name: web_project_dashboard
+    command: celery --broker=redis://redis:6381/0 flower --port=5555
+    ports:
+      - 5556:5555
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6381/0
+      - CELERY_RESULT_BACKEND=redis://redis:6381/0
+    depends_on:
+      - web_project_backend
+      - redis
+      - worker
 
 networks:
   web_project-network:

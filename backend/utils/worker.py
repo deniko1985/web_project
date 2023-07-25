@@ -6,11 +6,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-REDIS_CLI = os.getenv("REDIS_CLI")
-
 
 celery = Celery(__name__)
-celery.conf.broker_url = os.environ.get("CELERY_BROKER_URL", REDIS_CLI)
+celery.conf.broker_url = os.getenv("CELERY_BROKER_URL")
+celery.conf.result_backend = os.getenv("CELERY_RESULT_BACKEND")
 
 
 @celery.task(name="create_task")
