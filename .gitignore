@@ -1,4 +1,4 @@
-postgres/*
+postgres/
 .git/
 backend/.vscode/
 .env
@@ -12,4 +12,3 @@ nltk_data/
 **/tests/
 **/logs/
 backend/models/test_db.py
-frontend/*
