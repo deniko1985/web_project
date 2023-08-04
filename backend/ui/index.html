@@ -13,36 +13,82 @@
         <title>Home organizer</title>
     </head>
     <body class="text-center">
-    <main class="form-signin">
-        <form id="form-login"> 
+    <main>
+      <a class="logo">Deniko1985</a>
+      <h4 class="h3 mb-3 fw-normal">Пожалуйста, войдите</h4>
+      <div class="form-signin">
+        <form id="form-user-login"> 
           <div id="message"></div>
-          <a class="logo">Deniko1985</a>
-            <h4 class="h3 mb-3 fw-normal">Пожалуйста, войдите</h4>
             <div class="form-floating">
-                <input type="text" form="form-login" class="form-control" name="username" minlength="6" placeholder="Name" required>
+                <input type="text" form="form-user-login" class="form-control" name="username" minlength="6" placeholder="Name" required>
                 <label for="username">Логин</label>
             </div>
             <div class="form-floating">
-              <input type="password" form="form-login" class="form-control" name="password" minlength="6" required placeholder="password" required>
+              <input type="password" form="form-user-login" class="form-control" name="password" minlength="6" required placeholder="password" required>
               <label for="password">Пароль</label>
             </div>    
             <div class="checkbox mb-3">
               <label>
-                <input type="checkbox" value="remember-me"> Запомнить меня
+                <input type="checkbox" id="remember-user" name="remember_user" form="form-user-login" href=""> Запомнить меня
               </label>
             </div>
-              <input type="hidden" form="form-login" name="client_secret" id="tz">
+              <input type="hidden" form="form-user-login" name="client_secret" id="tz-user">
+              <input type="hidden" form="form-user-login" name="visitorId" id="visitorId">
               <input type="submit" formaction="/auth" formmethod="post" 
-              formenctype="multipart/form-data" form="form-login" class="w-100 btn btn-lg btn-dark" value="Войти">
+              formenctype="multipart/form-data" form="form-user-login" class="w-100 btn btn-lg-1 btn-dark" value="Войти">
               <p></p>
               <input type="submit" formaction="/add_user" formmethod="post" 
-              formenctype="multipart/form-data" form="form-login" class="w-100 btn btn-lg btn-dark" value="Зарегистрироваться">
-            <p class="mt-5 mb-3 text-muted">&copy; 2023</p>
-        </form>         
+              formenctype="multipart/form-data" form="form-user-login" class="w-100 btn btn-lg-1 btn-dark" value="Зарегистрироваться">
+        </form>
+      </div>
+      <!--<div class="form-signin rigth">
+        <form id="form-company-login"> 
+          <div id="message"></div>
+            <div class="form-floating">
+                <input type="text" form="form-company-login" class="form-control" name="username" minlength="6" placeholder="Name" required>
+                <label for="username">ИНН</label>
+            </div>
+            <div class="form-floating">
+              <input type="password" form="form-company-login" class="form-control" name="password" minlength="6" required placeholder="password" required>
+              <label for="password">Пароль</label>
+            </div>    
+            <div class="checkbox mb-3">
+              <label>
+                <input type="checkbox" id="remember-company" name="remember_company" form="form-company-login" href=""> Запомнить меня
+              </label>
+            </div>
+              <input type="hidden" form="form-company-login" name="client_secret" id="tz-company">
+              <input type="submit" formaction="/auth_company" formmethod="post" 
+              formenctype="multipart/form-data" form="form-company-login" class="w-100 btn btn-lg-1 btn-dark" value="Войти как компания">
+              <p></p>
+              <input type="submit" formaction="/add_company" formmethod="post" 
+              formenctype="multipart/form-data" form="form-company-login" class="w-100 btn btn-lg-1 btn-dark" value="Зарегистрироваться как компания">
+        </form>
+      </div>-->
+      <p class="mt-5 mb-3 text-muted">&copy; 2023 - <a id="year"></a> </p>         
       </main>
-    <script>            
-        var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        document.getElementById('tz').setAttribute('value', tz);
+    <script>
+        let year = new Date().getFullYear();
+        console.log(year);
+        document.getElementById('year').innerHTML = year;
+        let tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        document.getElementById('tz-user').setAttribute('value', tz);
+        //document.getElementById('tz-company').setAttribute('value', tz);
+      </script>
+      <script>
+        // Initialize the agent at application startup.
+        const fpPromise = import('https://openfpcdn.io/fingerprintjs/v4')
+          .then(FingerprintJS => FingerprintJS.load())
+      
+        // Get the visitor identifier when you need it.
+        fpPromise
+          .then(fp => fp.get())
+          .then(result => {
+            // This is the visitor identifier:
+            const visitorId = result.visitorId
+            document.getElementById('visitorId').setAttribute('value', visitorId);
+            console.log(visitorId)
+          })
       </script>
     </body>
     </html>

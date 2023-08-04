@@ -10,7 +10,7 @@ import starlette.status as status
 
 from schemas.users import User
 from schemas.notes import UserNotesBase
-from backend.db import notes
+from db import notes
 from utils.depend import get_user_by_cookie, get_timezone_by_cookie
 from utils.worker import create_task
 
@@ -81,7 +81,7 @@ async def delete_note_user(request: Request, note_id: int, current_user: User = 
             "/modal_error.html",
             {"request": request, "data": "Удаление не удалось"})
     else:
-        return RedirectResponse('/my_notes')
+        return RedirectResponse('/my_notes/1')
 
 
 @router.get('/update_note/{id}')
@@ -139,7 +139,7 @@ async def download_note(
                 content=data_file,
                 media_type=mimetype,
                 headers={"Content-Disposition": f'attachment; filename={load_filepath}'}
-                )
+            )
     else:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
@@ -165,7 +165,7 @@ async def get_search_query(
         str(search_text),
         search_by_name,
         search_by_text
-        )
+    )
     if current_user:
         if result:
             return templates.TemplateResponse(
@@ -197,3 +197,15 @@ async def add_favour(
         return RedirectResponse('/my_notes/1', status_code=status.HTTP_302_FOUND)
     else:
         raise HTTPException(status_code=400, detail="Добавление в избранное не удалось")
+
+
+@router.get('/database_regeneration')
+async def database_regeneration():
+    data_notes = await notes.regeneration()
+    return data_notes
+
+
+@router.get('/database_regeneration_lang')
+async def database_regeneration_lang():
+    data_notes = await notes.regeneration_lang()
+    return data_notes

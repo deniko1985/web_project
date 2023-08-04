@@ -1,23 +1,18 @@
 import sqlalchemy
+from sqlalchemy import Column, Integer, String, DateTime, Float
+from sqlalchemy.ext.declarative import declarative_base
 
 metadata = sqlalchemy.MetaData()
 
-budget_table = sqlalchemy.Table(
-    "budget",
-    metadata,
-    sqlalchemy.Column(
-        "id",
-        sqlalchemy.Integer,
-        primary_key=True,
-        autoincrement=True
-        ),
-    sqlalchemy.Column(
-        "user_id",
-        sqlalchemy.Integer,
-        ),
-    sqlalchemy.Column("username", sqlalchemy.String(100)),
-    sqlalchemy.Column("income", sqlalchemy.Float),
-    sqlalchemy.Column("expense", sqlalchemy.Float),
-    sqlalchemy.Column("comment", sqlalchemy.String()),
-    sqlalchemy.Column("date", sqlalchemy.DateTime())
-)
+Base = declarative_base(metadata=metadata)
+
+
+class Budget(Base):
+    __tablename__ = "budget"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer)
+    username = Column(String(100))
+    income = Column(Float)
+    expense = Column(Float)
+    comment = Column(String())
+    date = Column(DateTime())

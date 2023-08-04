@@ -14,16 +14,16 @@
     </head>
     <body class="text-center">
     <main class="form-signin">
-        <form id="form-login"> 
+        <form id="formLogin"> 
           <div id="message"></div>
           <a class="logo">Deniko1985</a>
             <h4 class="h3 mb-3 fw-normal">Пожалуйста, войдите</h4>
             <div class="form-floating">
-                <input type="text" form="form-login" class="form-control" name="username" minlength="6" placeholder="Name" required>
+                <input type="text" form="formLogin" class="form-control" name="username" minlength="6" placeholder="Name" required>
                 <label for="username">Логин</label>
             </div>
             <div class="form-floating">
-              <input type="password" form="form-login" class="form-control" name="password" minlength="6" required placeholder="password" required>
+              <input type="password" form="formLogin" class="form-control" name="password" minlength="6" required placeholder="password" required>
               <label for="password">Пароль</label>
             </div>    
             <div class="checkbox mb-3">
@@ -31,18 +31,38 @@
                 <input type="checkbox" value="remember-me"> Запомнить меня
               </label>
             </div>
-              <input type="hidden" form="form-login" name="client_secret" id="tz">
-              <input type="submit" formaction="http://localhost:5001/auth" formmethod="post" 
-              formenctype="multipart/form-data" form="form-login" class="w-100 btn btn-lg btn-dark" value="Войти">
+              <!--<input type="hidden" form="formLogin" name="client_secret" id="tz">-->
+              <input type="submit" class="w-100 btn btn-lg btn-dark" value="Войти">
               <p></p>
-              <input type="submit" formaction="http://localhost:5001/add_user" formmethod="post" 
-              formenctype="multipart/form-data" form="form-login" class="w-100 btn btn-lg btn-dark" value="Зарегистрироваться">
+              <!--<input type="submit" class="w-100 btn btn-lg btn-dark" value="Зарегистрироваться">-->
             <p class="mt-5 mb-3 text-muted">&copy; 2023</p>
         </form>         
       </main>
-    <script>            
-        var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        document.getElementById('tz').setAttribute('value', tz);
+      <script>            
+        let tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        // document.getElementById('tz').setAttribute('value', tz);
+
+        formLogin.onsubmit = async (e) => {
+          e.preventDefault();
+          let newForm = new FormData(formLogin)
+          let form = {username: newForm.get("username"), password: newForm.get("password"),} //timezone: tz}
+          console.log(form)
+          console.log(newForm.get("username"));
+          console.log(newForm.get("password"));
+          let response = await fetch('/auth', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            credentials: 'same-origin',
+            // body: JSON.stringify(form),
+            body: form,
+          });
+      
+          let result = await response.json();
+      
+          alert(result.message);
+        };
       </script>
     </body>
     </html>

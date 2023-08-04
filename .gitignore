@@ -1,4 +1,4 @@
-postgres/data/
+postgres/*
 .git/
 backend/.vscode/
 .env
@@ -7,4 +7,9 @@ backend/config.py
 **.pytest_cache/
 backend/migrations/versions/*.py
 !backend/migrations/versions/__init__.py
-**/static_log/
+**/logs/
+nltk_data/
+**/tests/
+**/logs/
+backend/models/test_db.py
+frontend/*

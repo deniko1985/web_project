@@ -1,24 +1,20 @@
 import sqlalchemy
+from sqlalchemy import Column, Integer, String, DateTime, ARRAY, Text
+from sqlalchemy.ext.declarative import declarative_base
 
 metadata = sqlalchemy.MetaData()
 
-notes_table = sqlalchemy.Table(
-    "notes",
-    metadata,
-    sqlalchemy.Column(
-        "id",
-        sqlalchemy.Integer,
-        primary_key=True,
-        autoincrement=True
-        ),
-    sqlalchemy.Column(
-        "user_id",
-        sqlalchemy.Integer,
-        ),
-    sqlalchemy.Column("username", sqlalchemy.String(100)),
-    sqlalchemy.Column("name_notes", sqlalchemy.String(100), index=True),
-    sqlalchemy.Column("text_notes", sqlalchemy.String(), index=True),
-    sqlalchemy.Column("favourites", sqlalchemy.String(), default="off"),
-    sqlalchemy.Column("date", sqlalchemy.DateTime()),
-    sqlalchemy.Column("lang", sqlalchemy.String())
-)
+Base = declarative_base(metadata=metadata)
+
+
+class Notes(Base):
+    __tablename__ = "notes"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer)
+    username = Column(String(100))
+    name_notes = Column(String(100), index=True)
+    text_notes = Column(Text, index=True)
+    favourites = Column(String(), default="off")
+    date = Column(DateTime())
+    lang = Column(String())
+    keywords = Column(ARRAY(item_type=sqlalchemy.String()))

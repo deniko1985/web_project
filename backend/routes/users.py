@@ -7,7 +7,8 @@ from starlette.templating import Jinja2Templates
 import starlette.status as status
 
 from schemas.users import TokenBase, User, UserGeneral
-from backend.db import users
+from db import users
+from utils.user_block import UserBlock
 from utils.depend import get_user_by_cookie
 
 from dotenv import load_dotenv
@@ -23,16 +24,30 @@ templates = Jinja2Templates(directory="/backend/ui")
 
 
 @router.post("/auth", response_model=TokenBase)
-async def auth(request: Request, form_data: OAuth2PasswordRequestForm = Depends()):
+async def auth(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), remember_me=Form(default=None)):
+    print(form_data)
+    x = 'x-forwarded-for'.encode('utf-8')
+    for header in request.headers.raw:
+        if header[0] == x:
+            print("Find out the forwarded-for ip address")
+            forward_ip = header[1].decode('utf-8')
+            print("forward_ip: ", forward_ip)
     user = await users.get_user(form_data.username)
+    check_user = UserBlock(username=form_data.username)
     if not user:
         return templates.TemplateResponse(
             "/modal_error.html",
             {"request": request, "data": "Пользователя с таким логином не существует"})
     if not users.verify_password(plain_password=form_data.password, hashed_password=user["hashed_password"]):
+        data = await check_user.check_to_db()
         return templates.TemplateResponse(
             "/modal_error.html",
-            {"request": request, "data": "Некорректный пароль"})
+            {"request": request, "data": f"Некорректный пароль, {data['error']}"})
+    check_block = await check_user.return_ttl()
+    if check_block:
+        return templates.TemplateResponse(
+            "/modal_error.html",
+            {"request": request, "data": f"Вы заблокированы на {check_block} минут"})
     token = await users.create_user_token(user_id=user.id, username=form_data.username, tz=form_data.client_secret)
     payload_access = jwt.decode(token['access_token'], SECRET_KEY, algorithms=[ALGORITHM])
     exp_access: str = payload_access.get("exp")
@@ -43,11 +58,27 @@ async def auth(request: Request, form_data: OAuth2PasswordRequestForm = Depends(
                         "token_type": "bearer",
                     }
                 )
-    return RedirectResponse(
-        '/users',
-        status_code=status.HTTP_302_FOUND,
-        headers={"Set-cookie": f'access_token={token_dict["access_token"]}; expires_in={exp_access}; token_type=bearer'}
+    if remember_me:
+        return RedirectResponse(
+            '/users',
+            status_code=status.HTTP_302_FOUND,
+            headers={"Set-cookie": f'access_token={token_dict["access_token"]}; expires_in={exp_access}; token_type=bearer'}
         )
+    else:
+        return RedirectResponse(
+            '/users',
+            status_code=status.HTTP_302_FOUND,
+            headers={"Set-cookie": f'access_token={token_dict["access_token"]}'})
+
+
+@router.post("/auth_company", response_model=TokenBase)
+async def auth_company(request: Request, form_data: OAuth2PasswordRequestForm = Depends()):
+    x = 'x-forwarded-for'.encode('utf-8')
+    for header in request.headers.raw:
+        if header[0] == x:
+            print("Find out the forwarded-for ip address")
+            forward_ip = header[1].decode('utf-8')
+            print("forward_ip: ", forward_ip)
 
 
 @router.get('/users')
@@ -71,7 +102,7 @@ async def add_user(
         return templates.TemplateResponse(
             "/modal_error.html",
             {"request": request, "data": "Пользователь с таким логином существует"})
-    data = await users.create_user(name=username, password=password, tz=client_secret)
+    data = await users.create_user(username=username, password=password, tz=client_secret)
     if not data:
         raise HTTPException(status_code=400)
     else:
@@ -88,3 +119,13 @@ async def logout_user(request: Request, current_user: User = Depends(get_user_by
 @router.get("/user/me", response_model=User)
 async def read_users_me(current_user: User = Depends(get_user_by_cookie)):
     return current_user
+
+
+@router.post('/add_company')
+async def add_company(
+        request: Request,
+        email=Form(),
+        inn=Form(),
+        password=Form(),
+        client_secret=Form()):
+    print(email, inn, password)

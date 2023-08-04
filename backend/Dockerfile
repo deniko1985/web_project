@@ -20,10 +20,10 @@ COPY . .
 
 COPY --chown=appuser . /backend
 
-EXPOSE 5001
+EXPOSE 6002
 
 RUN chown -R appuser.appuser /var /run /backend /tmp
 
 ENTRYPOINT ["poetry", "run"]
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5001", "--reload"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "6002", "--reload", "--proxy-headers"]
 

@@ -11,6 +11,7 @@ class UserNotesBase(BaseModel):
     text_notes: str
     favourites: str
     date: datetime
+    keywords: list
 
 
 class AddNotes(BaseModel):

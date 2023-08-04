@@ -1,5 +1,5 @@
 import os
-from backend.db import users as users_utils
+from db import users as users_utils
 from fastapi import Depends, HTTPException, status, Cookie
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
