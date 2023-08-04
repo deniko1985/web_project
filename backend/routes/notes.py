@@ -12,7 +12,6 @@ from schemas.users import User
 from schemas.notes import UserNotesBase
 from db import notes
 from utils.depend import get_user_by_cookie, get_timezone_by_cookie
-from utils.worker import create_task
 
 
 router = APIRouter()

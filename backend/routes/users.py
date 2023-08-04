@@ -62,7 +62,9 @@ async def auth(request: Request, form_data: OAuth2PasswordRequestForm = Depends(
         return RedirectResponse(
             '/users',
             status_code=status.HTTP_302_FOUND,
-            headers={"Set-cookie": f'access_token={token_dict["access_token"]}; expires_in={exp_access}; token_type=bearer'}
+            headers=(
+                {"Set-cookie": f'access_token={token_dict["access_token"]}; expires_in={exp_access}; token_type=bearer'}
+            )
         )
     else:
         return RedirectResponse(
