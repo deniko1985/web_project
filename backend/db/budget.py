@@ -2,10 +2,11 @@ from datetime import datetime
 import pytz
 from sqlalchemy import select, insert
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 
 from models.budget import Budget
-from models.databases import database
+# from models.dbs import db
 from schemas.budget import BudgetSum
 
 
@@ -25,7 +26,7 @@ logger.addHandler(handler)
 logger.info(f"Testing the custom logger for module {__name__}...")
 
 
-async def get_budget_expense(user_id, date_from=None, date_to=None, full_date=None):
+async def get_budget_expense(db: AsyncSession, user_id, date_from=None, date_to=None, full_date=None):
     try:
         if not date_from:
             date_from = datetime.now().replace(day=1)
@@ -41,13 +42,13 @@ async def get_budget_expense(user_id, date_from=None, date_to=None, full_date=No
             query = query
         else:
             query = query.where(Budget.date <= date_to).where(Budget.date >= date_from)
-        records = await database.fetch_all(query)
+        records = await db.execute(query)
         expenses_sum = 0
         income_sum = 0
-        for record in records:
-            data = BudgetSum(**record)
-            income_sum += data.income
-            expenses_sum += data.expense
+        for record in records.scalars().all():
+            # data = BudgetSum(**record)
+            income_sum += record.income
+            expenses_sum += record.expense
         b_sum = {"income_sum": income_sum, "expenses_sum": expenses_sum}
         return b_sum
     except SQLAlchemyError as error:
@@ -55,7 +56,7 @@ async def get_budget_expense(user_id, date_from=None, date_to=None, full_date=No
         return {"error": str(error)}
 
 
-async def add_budget(user_id, username, income, expense, comment):
+async def add_budget(db: AsyncSession, user_id, username, income, expense, comment):
     try:
         query = insert(Budget).values(
             user_id=user_id,
@@ -65,13 +66,15 @@ async def add_budget(user_id, username, income, expense, comment):
             comment=comment,
             date=datetime.now()
         )
-        return await database.execute(query)
+        await db.execute(query)
+        await db.commit()
+        return "Ok!"
     except SQLAlchemyError as error:
         logging.error("SQLAlchemyError", exc_info=True)
         return {"error": str(error)}
 
 
-async def get_date_local(tz, date_from=None, date_to=None):
+async def get_date_local(db: AsyncSession, tz, date_from=None, date_to=None):
     if not date_from:
         date_from = datetime.now().replace(day=1).strftime("%Y-%m-%d")
     if not date_to:

@@ -1,5 +1,6 @@
 from sqlalchemy import update
-from models.databases import redis_cli, database
+from sqlalchemy.ext.asyncio import AsyncSession as database
+from models.databases import redis_cli
 from models.users import Users
 
 

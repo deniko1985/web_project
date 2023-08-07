@@ -12,3 +12,5 @@ nltk_data/
 **/tests/
 **/logs/
 backend/models/test_db.py
+backend/temp/
+

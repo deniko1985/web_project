@@ -1,8 +1,9 @@
 import os
 import mimetypes
 from datetime import datetime
+from typing import Annotated
 import pytz
-from fastapi import APIRouter, HTTPException, Depends, Response, Request, Form, Query
+from fastapi import APIRouter, HTTPException, Depends, Response, Request, Form, Path
 from fastapi.responses import RedirectResponse
 from typing import List
 from starlette.templating import Jinja2Templates
@@ -12,6 +13,7 @@ from schemas.users import User
 from schemas.notes import UserNotesBase
 from db import notes
 from utils.depend import get_user_by_cookie, get_timezone_by_cookie
+from utils.depend import CurrentUser, DBSession
 
 
 router = APIRouter()
@@ -21,7 +23,8 @@ templates = Jinja2Templates(directory="/backend/ui")
 @router.get('/notes')
 async def get_notes_page(
         request: Request,
-        current_user: User = Depends(get_user_by_cookie),
+        db: DBSession,
+        current_user: CurrentUser,
         tz: User = Depends(get_timezone_by_cookie)):
     date = datetime.now().astimezone(pytz.timezone(tz)).strftime("%d.%m.%Y")
     if current_user:
@@ -35,11 +38,12 @@ async def get_notes_page(
 @router.get('/my_notes/{page_number}', response_model=List[UserNotesBase])
 async def get_my_notes_page(
         request: Request,
-        page_number: int = Query(ge=1, default=1),
-        current_user: User = Depends(get_user_by_cookie),
+        page_number: Annotated[int, Path(ge=1)],
+        db: DBSession,
+        current_user: CurrentUser,
         tz: User = Depends(get_timezone_by_cookie)):
     if current_user:
-        data_notes = await notes.get_all_notes(current_user.id, tz, page_number)
+        data_notes = await notes.get_all_notes(db, current_user.id, tz, page_number)
         if data_notes:
             return templates.TemplateResponse(
                 "/my_notes.html",
@@ -55,12 +59,13 @@ async def get_my_notes_page(
 @router.post('/add_note')
 async def add_note_user(
         request: Request,
+        db: DBSession,
+        current_user: CurrentUser,
         name_notes=Form(),
-        text_notes=Form(),
-        current_user: User = Depends(get_user_by_cookie)):
+        text_notes=Form()):
     user_id = current_user.id
     user_name = current_user.username
-    data_note = await notes.create_note_user(user_id, user_name, name_notes, text_notes)
+    data_note = await notes.create_note_user(db, user_id, user_name, name_notes, text_notes)
     if not data_note:
         return templates.TemplateResponse(
             "/modal_error.html",
@@ -72,9 +77,13 @@ async def add_note_user(
 
 
 @router.get('/delete_note/{note_id}')
-async def delete_note_user(request: Request, note_id: int, current_user: User = Depends(get_user_by_cookie)):
+async def delete_note_user(
+        request: Request,
+        note_id: int,
+        db: DBSession,
+        current_user: CurrentUser,):
     user_id = current_user.id
-    data = await notes.delete_note(user_id, note_id)
+    data = await notes.delete_note(db, user_id, note_id)
     if data:
         return templates.TemplateResponse(
             "/modal_error.html",
@@ -87,10 +96,11 @@ async def delete_note_user(request: Request, note_id: int, current_user: User = 
 async def get_update_note_page(
         id: int,
         request: Request,
-        current_user: User = Depends(get_user_by_cookie)):
+        db: DBSession,
+        current_user: CurrentUser,):
     date = datetime.now().strftime("%d-%m-%Y")
     user_id = current_user.id
-    data = await notes.get_note_by_id(id, user_id)
+    data = await notes.get_note_by_id(db, id, user_id)
     if current_user:
         return templates.TemplateResponse(
             "/edit_note.html",
@@ -102,12 +112,14 @@ async def get_update_note_page(
 @router.post('/update_note')
 async def get_update_note(
         request: Request,
+        db: DBSession,
+        current_user: CurrentUser,
         id=Form(),
         name_notes=Form(),
         text_notes=Form(),
-        current_user: User = Depends(get_user_by_cookie)):
+        lang=Form()):
     user_id = current_user.id
-    data = await notes.update_note_by_id(user_id, int(id), name_notes[:76], text_notes)
+    data = await notes.update_note_by_id(db, user_id, int(id), name_notes[:76], text_notes, lang)
     if data:
         return RedirectResponse(
             '/my_notes/1',
@@ -122,9 +134,10 @@ async def get_update_note(
 async def download_note(
         request: Request,
         note_id: int,
-        current_user: User = Depends(get_user_by_cookie)):
+        db: DBSession,
+        current_user: CurrentUser,):
     if current_user:
-        load_filepath = await notes.create_note_file(current_user.id, note_id)
+        load_filepath = await notes.create_note_file(db, current_user.id, note_id)
         mimetype = mimetypes.guess_type(load_filepath)[0]
         with open(load_filepath, 'rb') as fs:
             data_file = fs.read()
@@ -148,9 +161,10 @@ async def get_search_query(
         request: Request,
         search_text: str,
         page: int,
+        db: DBSession,
+        current_user: CurrentUser,
         search_by_name='off',
         search_by_text='off',
-        current_user: User = Depends(get_user_by_cookie),
         tz: User = Depends(get_timezone_by_cookie)) -> list:
     if search_by_name == 'off' and search_by_text == 'off' or not search_text:
         return templates.TemplateResponse(
@@ -158,6 +172,7 @@ async def get_search_query(
             {"request": request, "data": "Вы не можете совершить поиск не введя текст или со снятыми флажками"})
     user_id = current_user.id
     result = await notes.get_all_notes(
+        db,
         user_id,
         tz,
         page,
@@ -187,11 +202,12 @@ async def get_search_query(
 @router.post("/add_favour")
 async def add_favour(
         request: Request,
+        db: DBSession,
+        current_user: CurrentUser,
         add_favour=Form(default=None),
-        id=Form(),
-        current_user: User = Depends(get_user_by_cookie)):
+        id=Form()):
     user_id = current_user.id
-    result = await notes.add_note_favour(user_id, int(id), add_favour)
+    result = await notes.add_note_favour(db, user_id, int(id), add_favour)
     if result:
         return RedirectResponse('/my_notes/1', status_code=status.HTTP_302_FOUND)
     else:
@@ -199,12 +215,12 @@ async def add_favour(
 
 
 @router.get('/database_regeneration')
-async def database_regeneration():
+async def database_regeneration(db: DBSession):
     data_notes = await notes.regeneration()
     return data_notes
 
 
 @router.get('/database_regeneration_lang')
-async def database_regeneration_lang():
+async def database_regeneration_lang(db: DBSession):
     data_notes = await notes.regeneration_lang()
     return data_notes

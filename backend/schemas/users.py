@@ -14,7 +14,9 @@ class UserBase(BaseModel):
     username: str
     hashed_password: str
     is_active: bool
-    auth_token: str
+
+    class Config:
+        orm_mode = True
 
 
 class User(BaseModel):
@@ -22,7 +24,6 @@ class User(BaseModel):
     username: str
     hashed_password: str
     is_active: bool
-    auth_token: str
 
 
 class UserGet(BaseModel):
@@ -31,7 +32,6 @@ class UserGet(BaseModel):
     hashed_password: str
     email: str
     is_active: bool
-    auth_token: str
 
 
 class UserGeneral(BaseModel):
@@ -61,5 +61,5 @@ class TokenBase(BaseModel):
         allow_population_by_field_name = True
 
 
-class UserToken(UserGet):
+class UserToken(UserBase):
     access_token: TokenBase = {}

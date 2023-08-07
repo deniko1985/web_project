@@ -6,8 +6,6 @@ from fastapi.openapi.docs import (
     get_swagger_ui_html,
     get_swagger_ui_oauth2_redirect_html,
 )
-from models.databases import database
-# import asyncio
 import logging
 
 from routes import budget, users, notes
@@ -59,12 +57,14 @@ logging.critical("A message of CRITICAL severity")
 
 @app.on_event("startup")
 async def startup():
-    await database.connect()
+    # await database.connect()
+    pass
 
 
 @app.on_event("shutdown")
 async def shutdown():
-    await database.disconnect()
+    # await database.close()
+    pass
 
 
 @app.get('/index')

@@ -1,20 +1,29 @@
 import os
-import sqlalchemy
-import databases
+# import sqlalchemy
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
+# import databases
 import redis
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
-metadata = sqlalchemy.MetaData()
+# metadata = sqlalchemy.MetaData()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-database = databases.Database(DATABASE_URL)
-engine = sqlalchemy.create_engine(
-    DATABASE_URL
+# database = databases.Database(DATABASE_URL)
+# engine = sqlalchemy.create_engine(
+#     DATABASE_URL
+# )
+# metadata.create_all(engine)
+
+engine = create_async_engine(DATABASE_URL, echo=True)
+SessionLocal = sessionmaker(
+    expire_on_commit=False,
+    class_=AsyncSession,
+    bind=engine,
 )
-metadata.create_all(engine)
 
 REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PORT = os.getenv("REDIS_PORT")

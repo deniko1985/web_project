@@ -1,4 +1,5 @@
 async function modalNote(response) {
+    console.log(response);
     const windowInnerWidth = document.documentElement.clientWidth;
     const scrollbarWidth = parseInt(window.innerWidth) - parseInt(windowInnerWidth);
 
@@ -41,15 +42,15 @@ async function modalNote(response) {
       openModal();
 
       deleteButton.addEventListener("click", function() {
-        window.location.assign(`/delete_note/${response.id}`);
+        window.location.assign(`/delete_note/${response["id"]}`);
       });
 
       editButton.addEventListener("click", function() {
-        window.location.assign(`/update_note/${response.id}`);
+        window.location.assign(`/update_note/${response["id"]}`);
       });
 
       downloadButton.addEventListener("click", function() {
-        window.location.assign(`/download_note/${response.id}`);
+        window.location.assign(`/download_note/${response["id"]}`);
       });
 
       

@@ -15,8 +15,13 @@ class UserNotesBase(BaseModel):
 
 
 class AddNotes(BaseModel):
+    user_id: int
+    username: str
     name_notes: str
     text_notes: str
+    favourites: str
+    date: datetime
+    keywords: list
 
 
 class UserNote(BaseModel):

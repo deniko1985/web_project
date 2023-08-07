@@ -20,6 +20,7 @@
             <form action="/update_note" method="post" id="form-edit-notes"></form>
               <div class="note_date" id="date" aria-placeholder="Дата" name="date" form="form-edit-notes">{{ date }}</div>
               <input type="hidden" name="id" form="form-edit-notes" value={{ data["id"] }}>
+              <input type="hidden" name="lang" form="form-edit-notes" value={{ data["lang"] }}>
               <textarea type="text" id="heading" placeholder="Заголовок записи" name="name_notes" form="form-edit-notes" maxlength="75" required>{{ data["name_notes"] }}</textarea>         
               <textarea id="text" placeholder="Введите текст" name="text_notes" form="form-edit-notes">{{ data["text_notes"] }}</textarea>              
                 <input type="submit" class="w-100 btn btn-lg btn-dark" form="form-edit-notes" formenctype="multipart/form-data" value="Сохранить">

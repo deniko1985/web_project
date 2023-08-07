@@ -7,6 +7,7 @@ import starlette.status as status
 from schemas.users import User
 from db import budget
 from utils.depend import get_user_by_cookie, get_timezone_by_cookie
+from utils.depend import CurrentUser, DBSession
 
 router = APIRouter()
 templates = Jinja2Templates(directory="/backend/ui")
@@ -15,10 +16,11 @@ templates = Jinja2Templates(directory="/backend/ui")
 @router.get("/budget")
 async def get_budget_page(
         request: Request,
-        current_user: User = Depends(get_user_by_cookie),
+        db: DBSession,
+        current_user: CurrentUser,
         tz: User = Depends(get_timezone_by_cookie)):
-    b_sum = await budget.get_budget_expense(current_user.id)
-    date = await budget.get_date_local(tz)
+    b_sum = await budget.get_budget_expense(db, current_user.id)
+    date = await budget.get_date_local(db, tz)
     if current_user:
         return templates.TemplateResponse(
             "/budget.html",
@@ -32,10 +34,11 @@ async def get_budget_page(
 @router.post("/add_budget_data")
 async def add_budget_data(
         request: Request,
+        db: DBSession,
+        current_user: CurrentUser,
         income=Form(default=None),
         expense=Form(default=None),
-        comment=Form(default=None),
-        current_user: User = Depends(get_user_by_cookie)):
+        comment=Form(default=None),):
     user_id = current_user.id
     username = current_user.username
     if not income and not expense:
@@ -46,7 +49,7 @@ async def add_budget_data(
         income = 0.0
     if not expense:
         expense = 0.0
-    response = await budget.add_budget(user_id, username, income, expense, comment)
+    response = await budget.add_budget(db, user_id, username, income, expense, comment)
     if not response:
         return templates.TemplateResponse(
             "/modal_error.html",
@@ -60,14 +63,15 @@ async def add_budget_data(
 @router.post("/get_data_for_period")
 async def get_data_for_period(
         request: Request,
+        db: DBSession,
+        current_user: CurrentUser,
         date_from=Form(default=None),
         date_to=Form(default=None),
         full_date=Form(default=None),
-        current_user: User = Depends(get_user_by_cookie),
         tz: User = Depends(get_timezone_by_cookie)):
     user_id = current_user.id
-    b_sum = await budget.get_budget_expense(user_id, date_from, date_to, full_date)
-    date = await budget.get_date_local(tz, date_from, date_to)
+    b_sum = await budget.get_budget_expense(db, user_id, date_from, date_to, full_date)
+    date = await budget.get_date_local(db, tz, date_from, date_to)
     if current_user:
         return templates.TemplateResponse(
             "/budget.html",

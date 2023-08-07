@@ -1,13 +1,14 @@
 import os
 from sqlalchemy import and_, select, update, insert, join
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta
 from jose import jwt
 import logging
 
 
 from models.users import Users, Tokens
-from models.databases import database
+# from models.dbs import db
 from config import pwd_context
 
 from dotenv import load_dotenv
@@ -41,64 +42,64 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-async def get_user(username):
-    query = (
+async def get_user(db: AsyncSession, username):
+    query = await db.execute(
             select(Users)
             .where(Users.username == username)
     )
-    return await database.fetch_one(query)
+    return query.scalar()
 
 
-async def get_user_by_id(user_id: int):
+async def get_user_by_id(db: AsyncSession, user_id: int):
     try:
-        query = (
+        query = await db.execute(
                 select(Users)
                 .where(Users.id == user_id)
                 .where(Users.is_active == True)
         )
-        return await database.fetch_one(query)
+        return query.scalar()
     except SQLAlchemyError as error:
         logging.error("SQLAlchemyError", exc_info=True)
         return {"error": str(error)}
 
 
-async def get_user_by_name(username: str):
+async def get_user_by_name(db: AsyncSession, username: str):
     try:
-        query = (
+        query = await db.execute(
                 select(Users)
                 .where(Users.username == username)
                 .where(Users.is_active == True)
         )
-        return await database.fetch_one(query)
+        return query.scalar()
     except SQLAlchemyError as error:
         logging.error("SQLAlchemyError", exc_info=True)
         return {"error": str(error)}
 
 
-async def check_user_token(user_id: int):
+async def check_user_token(db: AsyncSession, user_id: int):
     try:
-        query = select(Tokens).where(Tokens.user_id == user_id)
-        return await database.fetch_one(query)
+        query = await db.execute(select(Tokens).where(Tokens.user_id == user_id))
+        return query.scalar()
     except SQLAlchemyError as error:
         logging.error("SQLAlchemyError", exc_info=True)
         return {"error": str(error)}
 
 
-async def get_user_by_token(token: str):
+async def get_user_by_token(db: AsyncSession, token: str):
     try:
-        query = join([Tokens, Users]).select().where(
+        query = await db.execute(join([Tokens, Users]).select().where(
             and_(
                 Tokens.access_token == token,
                 Tokens.expires > datetime.now()
             )
-        )
-        return await database.fetch_one(query)
+        ))
+        return query.scalar()
     except SQLAlchemyError as error:
         logging.error("SQLAlchemyError", exc_info=True)
         return {"error": str(error)}
 
 
-async def create_access_token(data: dict, expires_delta: timedelta | None = None):
+async def create_access_token(db: AsyncSession, data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -109,14 +110,14 @@ async def create_access_token(data: dict, expires_delta: timedelta | None = None
     return encoded_jwt
 
 
-async def create_user_token(user_id: int, username, tz):
+async def create_user_token(db: AsyncSession, user_id: int, username, tz):
     data = {
                 "sub": username,
                 "user_id": user_id,
                 "tz": tz,
             }
-    access_token = await create_access_token(data)
-    token_obj = await check_user_token(user_id)
+    access_token = await create_access_token(db=db, data=data)
+    token_obj = await check_user_token(db=db, user_id=user_id)
     try:
         if token_obj:
             token = token_obj.access_token
@@ -153,13 +154,14 @@ async def create_user_token(user_id: int, username, tz):
                 )
                 .returning(Tokens.access_token, Tokens.expires)
             )
-        return await database.fetch_one(query)
+        result = await db.execute(statement=query)
+        return result.scalar()
     except SQLAlchemyError as error:
         logging.error("SQLAlchemyError", exc_info=True)
         return {"error": str(error)}
 
 
-async def create_user(username, password, tz):
+async def create_user(db: AsyncSession, username, password, tz):
     hashed_password = get_password_hash(password)
     query = insert(Users).values(
         username=username,
@@ -167,9 +169,9 @@ async def create_user(username, password, tz):
         role='users',
         is_active=True,
     )
-    user_id = await database.execute(query)
-    token = await create_user_token(user_id, username, tz)
-    user = await get_user_by_name(username)
+    user_id = await db.execute(statement=query).scalars().all()
+    token = await create_user_token(db=db, user_id=user_id, username=username, tz=tz)
+    user = await get_user_by_name(db=db, username=username)
     if not token:
         return False
     else:

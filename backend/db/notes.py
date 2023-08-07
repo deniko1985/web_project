@@ -3,13 +3,15 @@ import pytz
 import uuid
 from sqlalchemy import desc, func, or_, select, insert, delete, update
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
 import math
 import py3langid as langid
 import logging
+import json
 
 from models.notes import Notes
-from models.databases import database
-from schemas.notes import GetNotes
+# from models.dbs import db
+from schemas.notes import GetNotes, AddNotes, UserNotesBase
 from utils import parsing_text
 
 
@@ -33,16 +35,17 @@ class Note():
 
     @staticmethod
     def from_db(record: dict, tz: str):
-        note = (GetNotes(**record)).dict()
-        date = note["date"].astimezone(pytz.timezone(tz))
-        note["date"] = date.strftime("%d-%m-%Y %H:%M")
-        return note
+        # note = (GetNotes(*record)).dict()
+        date = record.date.astimezone(pytz.timezone(tz))
+        record.date = date.strftime("%d-%m-%Y %H:%M")
+        return record
 
 
 async def get_all_notes(
-        user_id,
-        tz,
-        page_number,
+        db: AsyncSession,
+        user_id: int,
+        tz: str,
+        page_number: int,
         search_text=None,
         search_by_name="off",
         search_by_text="off"):
@@ -59,7 +62,8 @@ async def get_all_notes(
         q = select(func.count()).where(Notes.user_id == user_id)
         if search_text:
             q = q.where(or_(*cond))
-        total_row = await database.execute(q)
+        res = await db.execute(q)
+        total_row = res.scalar()
         query = select(Notes).where(Notes.user_id == user_id)
         if search_text:
             query = query.where(or_(*cond))
@@ -70,12 +74,18 @@ async def get_all_notes(
                 .limit(PAGE_SIZE)
                 .offset(offset)
         )
-        records = await database.fetch_all(query)
+        records = await db.execute(query)
         data = []
-        for record in records:
+        for record in records.scalars().all():
+            _ = {}
             note = Note.from_db(record, tz)
-            # record.keywords = record.keywords.split(" ")
-            data.append(note)
+            # print("vars: ", vars(note))
+            _["id"] = note.id
+            _["name_notes"] = note.name_notes
+            _["text_notes"] = note.text_notes
+            _["lang"] = note.lang
+            _["date"] = note.date
+            data.append(_)
         response = {
             "total": total_row,
             "total_pages": math.ceil(total_row / PAGE_SIZE),
@@ -89,10 +99,10 @@ async def get_all_notes(
         return {"error": str(error)}
 
 
-async def create_note_user(user_id, user_name, name_notes, text_notes):
+async def create_note_user(db: AsyncSession, user_id, user_name, name_notes, text_notes):
     try:
         lang = langid.classify(text_notes)
-        keywords = await parsing_text.extrack_keywords(text_notes)
+        keywords = await parsing_text.extrack_keywords(text_notes, lang)
         query = insert(Notes).values(
             user_id=user_id,
             username=user_name,
@@ -102,27 +112,31 @@ async def create_note_user(user_id, user_name, name_notes, text_notes):
             date=datetime.now(),
             lang=lang[0],
             keywords=keywords,
-        )
-        return await database.execute(query)
+        ).returning(Notes.id)
+        records = await db.execute(query)
+        await db.commit()
+        return records.scalar()
     except SQLAlchemyError as error:
         logging.error("SQLAlchemyError", exc_info=True)
         return {"error": str(error)}
 
 
-async def delete_note(user_id, note_id):
+async def delete_note(db: AsyncSession, user_id: int, note_id: int):
     try:
         query = (
             delete(Notes)
             .where(Notes.user_id == user_id)
             .where(Notes.id == note_id)
         )
-        return await database.execute(query)
+        result = await db.execute(query)
+        await db.commit()
+        return None
     except SQLAlchemyError as error:
         logging.error("SQLAlchemyError", exc_info=True)
         return {"error": str(error)}
 
 
-async def create_note_file(user_id, note_id):
+async def create_note_file(db: AsyncSession, user_id: int, note_id: int):
     try:
         new_file = uuid.uuid4()
         export_filepath = "temp/" + f"{new_file}.txt"
@@ -131,32 +145,40 @@ async def create_note_file(user_id, note_id):
             .where(Notes.id == note_id)
             .where(Notes.user_id == user_id)
         )
-        res = await database.fetch_one(q)
+        res = await db.execute(q)
+        r = res.scalar()
         with open(export_filepath, "+a") as file:
-            file.writelines(res.name_notes)
-            file.writelines(res.text_notes)
+            file.writelines(r.name_notes)
+            file.writelines(r.text_notes)
         return export_filepath
     except SQLAlchemyError as error:
         logging.error("SQLAlchemyError", exc_info=True)
         return {"error": str(error)}
 
 
-async def get_note_by_id(id, user_id):
+async def get_note_by_id(db: AsyncSession, id, user_id):
     try:
-        q = (
+        query = (
             select(Notes)
             .where(Notes.id == id)
             .where(Notes.user_id == user_id)
         )
-        return await database.fetch_one(q)
+        result = await db.execute(query)
+        return result.scalar()
     except SQLAlchemyError as error:
         logging.error("SQLAlchemyError", exc_info=True)
         return {"error": str(error)}
 
 
-async def update_note_by_id(user_id, id, name_notes, text_notes):
+async def update_note_by_id(
+        db: AsyncSession,
+        user_id: int,
+        id: int,
+        name_notes: str,
+        text_notes: str,
+        lang: str,):
     try:
-        keywords = await parsing_text.extrack_keywords(text_notes)
+        keywords = await parsing_text.extrack_keywords(text_notes, lang)
         q = (
             update(Notes)
             .where(Notes.user_id == user_id)
@@ -167,19 +189,21 @@ async def update_note_by_id(user_id, id, name_notes, text_notes):
                 keywords=keywords,
             )
         )
-        await database.execute(q)
+        await db.execute(q)
+        await db.commit()
         query = (
             select(Notes)
             .where(Notes.user_id == user_id)
             .where(Notes.id == id)
         )
-        return await database.fetch_one(query)
+        result = await db.execute(query)
+        return result.scalar()
     except SQLAlchemyError as error:
         logging.error("SQLAlchemyError", exc_info=True)
         return {"error": str(error)}
 
 
-async def add_note_favour(user_id, id, add_favour):
+async def add_note_favour(db: AsyncSession, user_id: int, id: int, add_favour: str):
     try:
         q = (
             update(Notes)
@@ -187,22 +211,23 @@ async def add_note_favour(user_id, id, add_favour):
             .where(Notes.id == id)
             .values(favourites=add_favour)
         )
-        await database.execute(q)
+        await db.execute(q)
         query = (
             select(Notes)
             .where(Notes.user_id == user_id)
             .where(Notes.id == id)
         )
-        return await database.fetch_one(query)
+        result = await db.execute(query)
+        return result.scalar()
     except SQLAlchemyError as error:
         logging.error("SQLAlchemyError", exc_info=True)
         return {"error": str(error)}
 
 
-async def regeneration():
+async def regeneration(db: AsyncSession):
     try:
         query = select().where(Notes.keywords == None)
-        records = await database.fetch_all(query)
+        records = await db.execute(query)
         for record in records:
             keywords = await parsing_text.extrack_keywords(text=record.text_notes, lang=record.lang)
             q = (
@@ -210,17 +235,17 @@ async def regeneration():
                 .where(Notes.id == record.id)
                 .values(keywords=keywords)
             )
-            await database.execute(q)
+            await db.execute(q)
         return "Ok!"
     except SQLAlchemyError as error:
         logging.error("SQLAlchemyError", exc_info=True)
         return {"error": str(error)}
 
 
-async def regeneration_lang():
+async def regeneration_lang(db: AsyncSession):
     try:
         query = select().where(Notes.lang == None)
-        records = await database.fetch_all(query)
+        records = await db.execute(query)
         for record in records:
             lang = langid.classify(record.text_notes)
             q = (
@@ -228,7 +253,7 @@ async def regeneration_lang():
                 .where(Notes.id == record.id)
                 .values(lang=lang[0])
             )
-            await database.execute(q)
+            await db.execute(q)
         return "Ok!"
     except SQLAlchemyError as error:
         logging.error("SQLAlchemyError", exc_info=True)

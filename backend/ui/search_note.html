@@ -23,10 +23,10 @@
       <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
           <a href="/index" class="logo">Deniko1985</a>
           <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-              <li><a href="https://test.deniko1985.ru/users" class="nav-link px-2 text-white">Главная</a></li>
-              <li><a href="https://test.deniko1985.ru/notes" class="nav-link px-2 text-white">Создать заметку</a></li>
-              <li><a href="https://test.deniko1985.ru/my_notes/1" class="nav-link px-2 text-white">Мои заметки</a></li>
-              <li><a href="https://test.deniko1985.ru/budget" class="nav-link px-2 text-white">Калькулятор расходов</a></li>
+              <li><a href="https://deniko1985.ru/users" class="nav-link px-2 text-white">Главная</a></li>
+              <li><a href="https://deniko1985.ru/notes" class="nav-link px-2 text-white">Создать заметку</a></li>
+              <li><a href="https://deniko1985.ru/my_notes/1" class="nav-link px-2 text-white">Мои заметки</a></li>
+              <li><a href="https://deniko1985.ru/budget" class="nav-link px-2 text-white">Калькулятор расходов</a></li>
               <li><a href="https://deniko1985.ru/logout" class="nav-link px-2 text-white">Выход</a></li>
           </ul>
           <form id="form-search" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" action="/search_by_notes/search_query" method="get">
@@ -72,7 +72,7 @@
         <ul class="pagination pagination-sm">
         {% for i in range(data["total_pages"]) %}
             <li class="page-item"><a class="page-link" 
-              href="https://test.deniko1985.ru/search_by_notes/search_query?search_text={{ search_text }}&search_by_name={{ search_by_name }}&search_by_text={{ search_by_text }}&page={{ i + 1 }}">{{ i + 1}}</a></li>
+              href="https://deniko1985.ru/search_by_notes/search_query?search_text={{ search_text }}&search_by_name={{ search_by_name }}&search_by_text={{ search_by_text }}&page={{ i + 1 }}">{{ i + 1}}</a></li>
         {% endfor %}
       </ul>
     </nav>
