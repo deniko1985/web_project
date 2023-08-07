@@ -23,7 +23,6 @@ templates = Jinja2Templates(directory="/backend/ui")
 @router.get('/notes')
 async def get_notes_page(
         request: Request,
-        db: DBSession,
         current_user: CurrentUser,
         tz: User = Depends(get_timezone_by_cookie)):
     date = datetime.now().astimezone(pytz.timezone(tz)).strftime("%d.%m.%Y")

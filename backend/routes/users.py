@@ -23,7 +23,7 @@ router = APIRouter()
 templates = Jinja2Templates(directory="/backend/ui")
 
 
-@router.post("/auth", response_model=None)
+@router.post("/auth", response_model=TokenBase)
 async def auth(
         request: Request,
         db: DBSession,
@@ -59,11 +59,7 @@ async def auth(
     )
     payload_access = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     exp_access: str = payload_access.get("exp")
-    token_dict = (
-                    {
-                        "access_token": token,
-                    }
-                )
+    token_dict = {"access_token": token}
     if remember_me:
         return RedirectResponse(
             '/users',
@@ -112,7 +108,6 @@ async def add_user(
             "/modal_error.html",
             {"request": request, "data": "Пользователь с таким логином существует"})
     data = await users.create_user(db=db, username=username, password=password, tz=client_secret)
-    print("data: ", data)
     if not data:
         raise HTTPException(status_code=400)
     else:

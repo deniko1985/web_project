@@ -78,7 +78,6 @@ async def get_user_by_name(db: AsyncSession, username: str):
 
 async def check_user_token(db: AsyncSession, user_id: int):
     try:
-        print(user_id)
         query = await db.execute(select(Tokens).where(Tokens.user_id == user_id))
         return query.scalar()
     except SQLAlchemyError as error:
@@ -175,8 +174,6 @@ async def create_user(db: AsyncSession, username, password, tz):
     user_id = record.scalar()
     token = await create_user_token(db=db, user_id=user_id, username=username, tz=tz)
     user = await get_user_by_name(db=db, username=username)
-    print(token)
-    print(user)
     if not token:
         return False
     else:
