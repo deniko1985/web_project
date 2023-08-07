@@ -29,9 +29,6 @@ async def auth(
         db: DBSession,
         form_data: OAuth2PasswordRequestForm = Depends(),
         remember_me=Form(default=None)):
-    print("form_data: ", form_data)
-    print("form_data: ", form_data.username)
-    print("form_data: ", form_data.password)
     x = 'x-forwarded-for'.encode('utf-8')
     for header in request.headers.raw:
         if header[0] == x:
@@ -39,8 +36,6 @@ async def auth(
             forward_ip = header[1].decode('utf-8')
             print("forward_ip: ", forward_ip)
     user = await users.get_user(db=db, username=form_data.username)
-    print("user: ", user)
-    print("username: ", user.username)
     check_user = UserBlock(username=form_data.username)
     if not user:
         return templates.TemplateResponse(
@@ -62,7 +57,6 @@ async def auth(
         username=form_data.username,
         tz=form_data.client_secret
     )
-    print("token: ", token)
     payload_access = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     exp_access: str = payload_access.get("exp")
     token_dict = (
@@ -112,12 +106,13 @@ async def add_user(
         username=Form(),
         password=Form(),
         client_secret=Form()):
-    n_user = await users.get_user_by_name(username)
+    n_user = await users.get_user_by_name(db=db, username=username)
     if n_user:
         return templates.TemplateResponse(
             "/modal_error.html",
             {"request": request, "data": "Пользователь с таким логином существует"})
     data = await users.create_user(db=db, username=username, password=password, tz=client_secret)
+    print("data: ", data)
     if not data:
         raise HTTPException(status_code=400)
     else:

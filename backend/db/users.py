@@ -78,6 +78,7 @@ async def get_user_by_name(db: AsyncSession, username: str):
 
 async def check_user_token(db: AsyncSession, user_id: int):
     try:
+        print(user_id)
         query = await db.execute(select(Tokens).where(Tokens.user_id == user_id))
         return query.scalar()
     except SQLAlchemyError as error:
@@ -168,12 +169,16 @@ async def create_user(db: AsyncSession, username, password, tz):
         hashed_password=hashed_password,
         role='users',
         is_active=True,
-    )
-    user_id = await db.execute(statement=query).scalars().all()
+    ).returning(Users.id, Users.username)
+    record = await db.execute(query)
+    await db.commit()
+    user_id = record.scalar()
     token = await create_user_token(db=db, user_id=user_id, username=username, tz=tz)
     user = await get_user_by_name(db=db, username=username)
+    print(token)
+    print(user)
     if not token:
         return False
     else:
-        token_dict = {"token": token["access_token"], "expires": token["expires"]}
-        return {"id": user.id, "name": user.username, "is_active": True, "token": token_dict}
+        # token_dict = {"token": token["access_token"], "expires": token["expires"]}
+        return {"id": user.id, "name": user.username, "is_active": True, "token": token}
